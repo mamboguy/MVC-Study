@@ -3,43 +3,16 @@ package Chapter4;
 import java.util.ArrayList;
 
 /**
- * This project requires you to explore the Java GUI framework on your own,
- * determine the appropriate classes to use, and write two Java classes that
- * create a GUI program. The first class CourseProcessor is the GUI interface,
- * and the second class Course stores information about a single course.
- * <p>
- * The program accepts and stores information about courses offered in six
- * departments: Computer Science, Mathematics, Chemistry, Physics, Botany, and
- * Zoology.
- * <p>
- * The user can do the following.
- * a. Enter information about a course by selecting a department name from a
- * combo box, typing in the course number, name, number of credits and then
- * pressing the enter button. The interface checks that the entries are
- * non-empty (display error message otherwise) and then creates a Course object
- * using the information and then stores the object in a java.util.Vector
- * object.
- * <p>
- * b. Ask to list all courses by clicking on a button labeled display (all).
- * All the objects in the Vector object are displayed. There is a scrollbar that
- * allows viewing records that cannot be displayed in the given space. Also,
- * note the department codes such as CS and MATH inserted by the program.
- * <p>
- * c. Ask to list courses of a given department by clicking on a button labeled
- * display (dept.). Courses for the selected department (via the combo box) in
- * the Vector object are displayed.
- * <p>
- * d. Quit instantly by clicking on the window's 'close' button, or close (after
- * a confirm dialog) via an 'exit' button within the frame.
+ * Check inputs before accepting submit
+ * Edit table entries
+ * Delete table entries
  * <p>
  * Department codes Store the codes associated with departments in static arrays
  * in the class Course. This mapping should not be duplicated and should be used
  * consistently and reliably within your code. The codes are given below.
  */
 //http://www3.ntu.edu.sg/home/ehchua/programming/java/J4a_GUI.html
-//<editor-fold desc="Imports">
-//Ctrl+Shift+I
-//</editor-fold>
+
 public class CourseModel {
 
     ArrayList<Course> courseListing;
@@ -58,12 +31,16 @@ public class CourseModel {
         private int courseNumber;
         private int numCredits;
         private String courseDept;
+        private String courseShort;
 
         public Course(String department, String name, int number, int credits) {
             courseDept = department;
             courseName = name;
             courseNumber = number;
             numCredits = credits;
+
+            courseShort = COURSE_LISTING[1][getCourseIndex(department)];
+            courseShort += courseNumber;
         }
 
         public String getCourseName() {
@@ -82,12 +59,17 @@ public class CourseModel {
             return courseDept;
         }
 
+        public String getShortHand() {
+            return courseShort;
+        }
+
         public void setCourseName(String courseName) {
             this.courseName = courseName;
         }
 
         public void setCourseNumber(int courseNumber) {
             this.courseNumber = courseNumber;
+            this.courseShort = COURSE_LISTING[1][getCourseIndex(courseDept)] + courseNumber;
         }
 
         public void setNumCredits(int numCredits) {
@@ -96,6 +78,16 @@ public class CourseModel {
 
         public void setCourseDept(String courseDept) {
             this.courseDept = courseDept;
+            this.courseShort = COURSE_LISTING[1][getCourseIndex(courseDept)] + courseNumber;
+        }
+
+        private int getCourseIndex(String department) {
+            for (int i = 0; i < COURSE_LISTING[0].length; i++) {
+                if (department.equals(COURSE_LISTING[0][i])) {
+                    return i;
+                }
+            }
+            return -1;
         }
 
         public boolean equals(Course b) {
@@ -124,6 +116,7 @@ public class CourseModel {
                 && courseList.getNumCredits() == credits) {
 
                 temp = new Object[]{
+                    courseList.getShortHand(),
                     courseList.getCourseDept(),
                     courseList.getCourseName(),
                     courseList.getCourseNumber(),
@@ -138,14 +131,15 @@ public class CourseModel {
 
     public Object[][] getTableOutputArray() {
 
-        Object[][] temp = new Object[courseListing.size()][4];
+        Object[][] temp = new Object[courseListing.size()][5];
         int i = 0;
 
         for (Course courseListing1 : courseListing) {
-            temp[i][0] = courseListing1.getCourseDept();
-            temp[i][1] = courseListing1.getCourseName();
-            temp[i][2] = courseListing1.getCourseNumber();
-            temp[i][3] = courseListing1.getNumCredits();
+            temp[i][0] = courseListing1.getShortHand();
+            temp[i][1] = courseListing1.getCourseDept();
+            temp[i][2] = courseListing1.getCourseName();
+            temp[i][3] = courseListing1.getCourseNumber();
+            temp[i][4] = courseListing1.getNumCredits();
 
             i++;
         }

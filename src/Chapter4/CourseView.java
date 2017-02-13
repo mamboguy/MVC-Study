@@ -1,6 +1,8 @@
 package Chapter4;
 
-import java.awt.Color;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.ComponentOrientation;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
@@ -16,9 +18,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.RowFilter;
-import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
 
 public class CourseView
@@ -61,10 +61,11 @@ public class CourseView
     private JTable courseViewTable;
     private Object[][] tableInformation;
     private DefaultTableModel myModel;
-    private final String[] columnNames = {"Course Deptartment", "Course Name", "Course Number", "Credit Hours"};
+    private final String[] columnNames = {"Abbreviation","Course Deptartment", "Course Name", "Course Number", "Credit Hours"};
     private TableRowSorter mySorter;
     RowFilter<Object, Object> myFilter;
     private String filter = "";
+    private JButton exit;
     //</editor-fold>
 
     public CourseView() {
@@ -143,7 +144,7 @@ public class CourseView
             }
 
             Class[] types = new Class[]{
-                String.class, String.class, int.class, int.class
+                String.class, String.class, String.class, int.class, int.class
             };
 
             @Override
@@ -173,6 +174,8 @@ public class CourseView
 
         //</editor-fold>
 //
+        exit = initializeJButton("Exit", "Close the application after confirmation");
+//
         //<editor-fold desc="Master panel Creation">
         masterPanel = new JPanel();
         masterPanel.setLayout(new BoxLayout(masterPanel, BoxLayout.Y_AXIS));
@@ -183,6 +186,10 @@ public class CourseView
 
         masterPanel.add(masterPanel_topRow);
         masterPanel.add(tablePanel);
+
+        JPanel temp = new JPanel(new BorderLayout());
+        temp.add(exit, BorderLayout.LINE_END);
+        masterPanel.add(temp);
         //</editor-fold>
 
         //<editor-fold desc="Frame controls">
@@ -190,8 +197,13 @@ public class CourseView
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.add(masterPanel);
         this.pack();
+        this.setResizable(false);
         this.setVisible(true);
         //</editor-fold>
+
+        Dimension d = exit.getSize();
+        exit.setMaximumSize(d);
+        exit.setPreferredSize(d);
     }
 
     private JTextField initializeJTextField(int size, String toolTip) {
@@ -248,7 +260,6 @@ public class CourseView
     }
 
     public int getDisplay_courseSelector() {
-        System.out.println(display_courseSelector.getSelectedIndex());
         return display_courseSelector.getSelectedIndex();
     }
 
@@ -263,6 +274,7 @@ public class CourseView
         display_viewButton.addActionListener(al);
         display_allButton.addActionListener(al);
         input_submitButton.addActionListener(al);
+        exit.addActionListener(al);
     }
 
     public void insertIntoTable(Object[] newCourse) {
@@ -276,7 +288,7 @@ public class CourseView
     public void setFilter(String filter) {
         this.filter = filter;
 
-        myFilter = RowFilter.regexFilter(this.filter, 0);
+        myFilter = RowFilter.regexFilter(this.filter, 1);
 
         mySorter.setRowFilter(myFilter);
     }

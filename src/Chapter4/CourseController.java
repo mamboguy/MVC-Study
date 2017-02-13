@@ -3,7 +3,7 @@ package Chapter4;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
-import javax.swing.RowFilter;
+import javax.swing.JOptionPane;
 
 public class CourseController
         implements ActionListener {
@@ -39,7 +39,6 @@ public class CourseController
                 model.add(courseDept, courseName, courseNum, courseCred);
                 view.clearSubmit();
                 view.insertIntoTable(model.findCourse(courseDept, courseName, courseNum, courseCred));
-                System.out.println("Course Added");
                 break;
             case "View All":
                 view.setFilter("");
@@ -47,14 +46,29 @@ public class CourseController
             case "Search":
                 view.setFilter(CourseModel.COURSE_LISTING[0][view.getDisplay_courseSelector()]);
                 break;
+            case "Exit":
+                String options[] = {"Exit", "Cancel"};
+
+                if (JOptionPane.showOptionDialog(null,
+                                                 "Are you sure you want to exit",
+                                                 "Exit confirmation",
+                                                 JOptionPane.YES_NO_OPTION,
+                                                 JOptionPane.QUESTION_MESSAGE,
+                                                 null,
+                                                 options,
+                                                 options[1]) == JOptionPane.YES_OPTION) {
+
+                    System.exit(0);
+                }
+
+                break;
         }
-
-
+    }
 //
 //        } catch (Exception ex) {
 //            System.out.println("Exception thrown and caught: " + ex);
 //        }
-    }
+//  }
 
     public static void main(String[] args) {
 
