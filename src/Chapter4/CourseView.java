@@ -1,5 +1,6 @@
 package Chapter4;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
@@ -11,12 +12,17 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.RowFilter;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableRowSorter;
 
 public class CourseView
-        extends JFrame
-        implements ActionListener {
+        extends JFrame {
 
     private JPanel masterPanel;
     private JPanel masterPanel_topRow;
@@ -49,13 +55,23 @@ public class CourseView
 
     //<editor-fold desc="Table Area">
     //Table display
-    private JPanel tablePanel;
+    private JScrollPane tablePanel;
 
     //Table display controls
     private JTable courseViewTable;
+    private Object[][] tableInformation;
+    private DefaultTableModel myModel;
+    private final String[] columnNames = {"Course Deptartment", "Course Name", "Course Number", "Credit Hours"};
+    private TableRowSorter mySorter;
+    RowFilter<Object, Object> myFilter;
+    private String filter = "";
     //</editor-fold>
 
     public CourseView() {
+        this(null);
+    }
+
+    public CourseView(Object[][] tableInfo) {
         //Initialize components
 
         //<editor-fold desc="Input panel creation">		
@@ -73,7 +89,7 @@ public class CourseView
         input_controlPanel.setLayout(new BoxLayout(input_controlPanel, BoxLayout.Y_AXIS));
         inputPanel = new JPanel(new GridLayout(1, 2, 5, 0));
         input_labelPanel.setAlignmentX(RIGHT_ALIGNMENT);
-        
+
         //Input area labels
         input_controlPanel.add(input_courseBox);
         input_controlPanel.add(input_courseName);
@@ -81,12 +97,12 @@ public class CourseView
         input_controlPanel.add(input_courseCredits);
         input_controlPanel.add(input_submitButton);
 
-        String[] labels = {"Owning Department","Course Name","Course Number","Credit Hours"};
-        
-        input_labelPanel.add(Box.createRigidArea(new Dimension(0,5)));
+        String[] labels = {"Owning Department", "Course Name", "Course Number", "Credit Hours"};
+
+        input_labelPanel.add(Box.createRigidArea(new Dimension(0, 5)));
         for (int i = 0; i < labels.length; i++) {
             input_labelPanel.add(createLabel(labels[i]));
-            input_labelPanel.add(Box.createRigidArea(new Dimension(0,5)));
+            input_labelPanel.add(Box.createRigidArea(new Dimension(0, 5)));
         }
 
         //Add components to the panels
@@ -117,26 +133,65 @@ public class CourseView
         course_controlPanel.add(display_viewButton);
         //</editor-fold>
 
-        //<editor-fold desc="Table panel creation">		
+        //<editor-fold desc="Table panel creation">
         //Initialize tablePanel controls
-        //courseViewTable = new JTable()
+        myModel = new DefaultTableModel(tableInformation, columnNames) {
+
+            @Override
+            public boolean isCellEditable(int rowIndex, int vColIndex) {
+                return false;
+            }
+
+            Class[] types = new Class[]{
+                String.class, String.class, int.class, int.class
+            };
+
+            @Override
+            public Class getColumnClass(int columnIndex) {
+                return types[columnIndex];
+            }
+
+            @Override
+            public String getColumnName(int columnIndex) {
+                return columnNames[columnIndex];
+            }
+
+        };
+        courseViewTable = new JTable(myModel);
+        courseViewTable.setAutoCreateRowSorter(true);
+
+        mySorter = new TableRowSorter(myModel);
+
+        courseViewTable.setRowSorter(mySorter);
+        setFilter(filter);
+
+        initializeTableInformation(tableInfo);
+
+        //Add components to panels
+        tablePanel = new JScrollPane();
+        tablePanel.setViewportView(courseViewTable);
+
         //</editor-fold>
-        //<editor-fold desc="Master Panel Initialize">
-        masterPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+//
+        //<editor-fold desc="Master panel Creation">
+        masterPanel = new JPanel();
+        masterPanel.setLayout(new BoxLayout(masterPanel, BoxLayout.Y_AXIS));
         masterPanel_topRow = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
         masterPanel_topRow.add(inputPanel);
         masterPanel_topRow.add(coursePanel);
 
         masterPanel.add(masterPanel_topRow);
-        //masterPanel.add(tablePanel);
+        masterPanel.add(tablePanel);
         //</editor-fold>
 
+        //<editor-fold desc="Frame controls">
         this.setTitle("Course Chp 4 Solution");
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.add(masterPanel);
         this.pack();
         this.setVisible(true);
+        //</editor-fold>
     }
 
     private JTextField initializeJTextField(int size, String toolTip) {
@@ -169,29 +224,70 @@ public class CourseView
         }
 
         temp.setToolTipText(toolTip);
-        temp.addActionListener(this);
-
         return temp;
-    }
-
-    @Override
-    public void actionPerformed(java.awt.event.ActionEvent e) {
-        JButton temp = (JButton) e.getSource();
-
-        switch (temp.getText()) {
-            case "Submit":
-                System.out.println("Submit");
-                break;
-            case "View All":
-                System.out.println("View All");
-                break;
-            case "Search":
-                System.out.println("Search");
-                break;
-        }
     }
 
     private JLabel createLabel(String label) {
         return (new JLabel(label + ":"));
+    }
+
+    public String getInput_courseName() {
+        return input_courseName.getText();
+    }
+
+    public int getInput_courseNumber() {
+        return Integer.parseInt(input_courseNumber.getText());
+    }
+
+    public int getInput_courseCredits() {
+        return Integer.parseInt(input_courseCredits.getText());
+    }
+
+    public String getInput_courseBox() {
+        return (String) input_courseBox.getSelectedItem();
+    }
+
+    public int getDisplay_courseSelector() {
+        System.out.println(display_courseSelector.getSelectedIndex());
+        return display_courseSelector.getSelectedIndex();
+    }
+
+    public void clearSubmit() {
+        input_courseName.setText("");
+        input_courseBox.setSelectedIndex(0);
+        input_courseCredits.setText("");
+        input_courseNumber.setText("");
+    }
+
+    public void registerListener(ActionListener al) {
+        display_viewButton.addActionListener(al);
+        display_allButton.addActionListener(al);
+        input_submitButton.addActionListener(al);
+    }
+
+    public void insertIntoTable(Object[] newCourse) {
+        myModel.addRow(newCourse);
+    }
+
+    public void removeFromTable(int row) {
+        myModel.removeRow(row);
+    }
+
+    public void setFilter(String filter) {
+        this.filter = filter;
+
+        myFilter = RowFilter.regexFilter(this.filter, 0);
+
+        mySorter.setRowFilter(myFilter);
+    }
+
+    public void initializeTableInformation(Object[][] tableInfo) {
+        tableInformation = tableInfo;
+
+        if (tableInformation != null) {
+            for (int i = 0; i < tableInfo.length; i++) {
+                myModel.addRow(tableInformation[i]);
+            }
+        }
     }
 }

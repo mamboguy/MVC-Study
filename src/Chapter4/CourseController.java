@@ -3,13 +3,13 @@ package Chapter4;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
+import javax.swing.RowFilter;
 
 public class CourseController
         implements ActionListener {
 
     private CourseModel model;
     private CourseView view;
-    private String filter = "All";
 
     public CourseController() {
         this(new CourseModel());
@@ -17,7 +17,7 @@ public class CourseController
 
     public CourseController(CourseModel initial) {
         model = initial;
-        view = new CourseView(getTableInformation("All"));
+        view = new CourseView(model.getTableOutputArray());
         view.registerListener(this);
     }
 
@@ -25,39 +25,35 @@ public class CourseController
     public void actionPerformed(ActionEvent e) {
 //        try {
 
-            JButton temp = (JButton) e.getSource();
-            String buttonName = temp.getText();
+        JButton temp = (JButton) e.getSource();
+        String buttonName = temp.getText();
 
-            switch (buttonName) {
-                case "Submit":
+        switch (buttonName) {
+            case "Submit":
 
-                    String courseDept = view.getInput_courseBox();
-                    String courseName = view.getInput_courseName();
-                    int courseNum = view.getInput_courseNumber();
-                    int courseCred = view.getInput_courseCredits();
+                String courseDept = view.getInput_courseBox();
+                String courseName = view.getInput_courseName();
+                int courseNum = view.getInput_courseNumber();
+                int courseCred = view.getInput_courseCredits();
 
-                    model.add(courseDept, courseName, courseNum, courseCred);
-                    view.clearSubmit();
-                    view.insertIntoTable(model.findCourse(courseDept, courseName, courseNum, courseCred));
-                    System.out.println("Course Added");
-                    break;
-                case "View All":
-                    filter = "All";
-                    break;
-                case "Search":
-                    filter = CourseModel.COURSE_LISTING[view.getDisplay_courseSelector()][0];
-                    break;
-            }
+                model.add(courseDept, courseName, courseNum, courseCred);
+                view.clearSubmit();
+                view.insertIntoTable(model.findCourse(courseDept, courseName, courseNum, courseCred));
+                System.out.println("Course Added");
+                break;
+            case "View All":
+                view.setFilter("");
+                break;
+            case "Search":
+                view.setFilter(CourseModel.COURSE_LISTING[0][view.getDisplay_courseSelector()]);
+                break;
+        }
 
-            view.filterRows(filter);
+
 //
 //        } catch (Exception ex) {
 //            System.out.println("Exception thrown and caught: " + ex);
 //        }
-    }
-
-    public Object[][] getTableInformation(String department) {
-        return model.getTableOutputArray(department);
     }
 
     public static void main(String[] args) {

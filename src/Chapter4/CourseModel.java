@@ -20,12 +20,12 @@ import java.util.ArrayList;
  * using the information and then stores the object in a java.util.Vector
  * object.
  * <p>
- * b. Ask to list all courses by clicking on a button labelled display (all).
+ * b. Ask to list all courses by clicking on a button labeled display (all).
  * All the objects in the Vector object are displayed. There is a scrollbar that
  * allows viewing records that cannot be displayed in the given space. Also,
  * note the department codes such as CS and MATH inserted by the program.
  * <p>
- * c. Ask to list courses of a given department by clicking on a button labelled
+ * c. Ask to list courses of a given department by clicking on a button labeled
  * display (dept.). Courses for the selected department (via the combo box) in
  * the Vector object are displayed.
  * <p>
@@ -42,11 +42,15 @@ import java.util.ArrayList;
 //</editor-fold>
 public class CourseModel {
 
-    ArrayList courseListing = new ArrayList();
+    ArrayList<Course> courseListing;
 
     public static final String[][] COURSE_LISTING = {
         {"Computer Science", "Physics", "Chemistry", "Mathematics", "Botany", "Zoology"},
         {"CS", "PHY", "CHEM", "MATH", "BOT", "ZOO"}};
+
+    public CourseModel() {
+        courseListing = new ArrayList();
+    }
 
     private class Course {
 
@@ -100,9 +104,63 @@ public class CourseModel {
                     && courseDept.equals(b.getCourseDept())
                     && numCredits == b.getNumCredits());
         }
+
+        public String toString() {
+            return "{" + courseName + ", " + courseDept + ", " + courseNumber + ", " + numCredits + "}";
+        }
     }
 
     public void add(String department, String name, int number, int credits) {
         courseListing.add(new Course(department, name, number, credits));
+    }
+
+    public Object[] findCourse(String department, String name, int number, int credits) {
+        Object[] temp;
+
+        for (Course courseList : courseListing) {
+            if (courseList.getCourseDept().equals(department)
+                && courseList.getCourseName().equals(name)
+                && courseList.getCourseNumber() == number
+                && courseList.getNumCredits() == credits) {
+
+                temp = new Object[]{
+                    courseList.getCourseDept(),
+                    courseList.getCourseName(),
+                    courseList.getCourseNumber(),
+                    courseList.getNumCredits()};
+
+                return temp;
+            }
+        }
+
+        return null;
+    }
+
+    public Object[][] getTableOutputArray() {
+
+        Object[][] temp = new Object[courseListing.size()][4];
+        int i = 0;
+
+        for (Course courseListing1 : courseListing) {
+            temp[i][0] = courseListing1.getCourseDept();
+            temp[i][1] = courseListing1.getCourseName();
+            temp[i][2] = courseListing1.getCourseNumber();
+            temp[i][3] = courseListing1.getNumCredits();
+
+            i++;
+        }
+
+        return temp;
+    }
+
+    @Override
+    public String toString() {
+        String temp = "";
+
+        for (Course courseListing1 : courseListing) {
+            temp += courseListing1.toString() + ", \n";
+        }
+
+        return temp.substring(0, temp.length() - 3);
     }
 }
