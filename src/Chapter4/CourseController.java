@@ -1,9 +1,66 @@
 package Chapter4;
 
-public class CourseController {
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JButton;
+
+public class CourseController
+        implements ActionListener {
+
+    private CourseModel model;
+    private CourseView view;
+    private String filter = "All";
+
+    public CourseController() {
+        this(new CourseModel());
+    }
+
+    public CourseController(CourseModel initial) {
+        model = initial;
+        view = new CourseView(getTableInformation("All"));
+        view.registerListener(this);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+//        try {
+
+            JButton temp = (JButton) e.getSource();
+            String buttonName = temp.getText();
+
+            switch (buttonName) {
+                case "Submit":
+
+                    String courseDept = view.getInput_courseBox();
+                    String courseName = view.getInput_courseName();
+                    int courseNum = view.getInput_courseNumber();
+                    int courseCred = view.getInput_courseCredits();
+
+                    model.add(courseDept, courseName, courseNum, courseCred);
+                    view.clearSubmit();
+                    view.insertIntoTable(model.findCourse(courseDept, courseName, courseNum, courseCred));
+                    System.out.println("Course Added");
+                    break;
+                case "View All":
+                    filter = "All";
+                    break;
+                case "Search":
+                    filter = CourseModel.COURSE_LISTING[view.getDisplay_courseSelector()][0];
+                    break;
+            }
+
+            view.filterRows(filter);
+//
+//        } catch (Exception ex) {
+//            System.out.println("Exception thrown and caught: " + ex);
+//        }
+    }
+
+    public Object[][] getTableInformation(String department) {
+        return model.getTableOutputArray(department);
+    }
 
     public static void main(String[] args) {
-        CourseController myController = new CourseController();
 
         CourseModel tempModel = new CourseModel();
         tempModel.add("Computer Science", "Intro to Java", 101, 3);
@@ -15,7 +72,7 @@ public class CourseController {
         tempModel.add("Computer Science", "Intermediate Java, pt 1", 201, 3);
         tempModel.add("Computer Science", "Intermediate Java, pt 2", 202, 3);
 
-        //myController.addModel(tempModel);
-        CourseView myView = new CourseView();
+        CourseController controller = new CourseController(tempModel);
     }
+
 }
