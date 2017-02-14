@@ -12,52 +12,30 @@
  * -------------------------------------
  * <p>
  * TODO List
- * <p>
  * - Input checking on user input
- * <p>
  * - Change button's text check to button's name check
- * <p>
  * - Allow editing of courses already in table
- * <p>
  * - Allow deletion of courses from table (after prompt)
- * <p>
  * - Restricting textfield to certain formats and values (i.e. ints only)
- * <p>
  * - Restrict resizing of Exit button during window resize
- * <p>
  * - Allow adding new courses to curriculum
- * <p>
  * - Change the default sizes of columns to be more appropriate
- * <p>
  * - Restrict each column's minimum size
- * <p>
  * - Change filter to allow multiple departments
- * <p>
  * - Make JOptionPane popup on screen in focus rather than primary monitor
- * <p>
  * -------------------------------------
- * <p>
  * What I've learned:
- * <p>
  * - MVC basic setup. Really simplifies code into easy to use/understand modules
- * <p>
  * - Basic GUI creation and ActionListener usage
- * <p>
  * - Value of standard libraries
- * <p>
  * - Basic Javadoc formatting (newline, <b>bold</b> and <code>code()</code>
- * <p>
  * - Git repository is a lifesaver
- * <p>
  * - Using constants to substitute values for code readability/prevent multiple
  * changes to code on simple model change
- * <p>
  * - Code folding, Ctrl+Shift+I for import management, Alt+Ins for auto-creating
  * getters/setters
- * <p>
  * - Template manipulation for personal ease of use
- *
- *
+
  * @author Michael C
  */
 package Chapter4;

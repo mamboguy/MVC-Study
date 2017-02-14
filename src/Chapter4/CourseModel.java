@@ -8,14 +8,11 @@
  * CourseModel implements the model component of the course program. It handles
  * all functions with regards to accessing and storing all course data used by
  * the program.
- * <p>
+ * 
  * Used resources:
- * <p>
- * StackOverflow
- * <p>
- * http://www3.ntu.edu.sg/home/ehchua/programming/java/J4a_GUI.html
- * <p>
- * S. Scott
+ * - StackOverflow
+ * - http://www3.ntu.edu.sg/home/ehchua/programming/java/J4a_GUI.html
+ * - S. Scott
  */
 package Chapter4;
 
