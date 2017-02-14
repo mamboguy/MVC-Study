@@ -1,8 +1,32 @@
+/**
+ * CHANGELOG
+ * - Documented code
+ * - Removed
+ *      * Private variables:
+ *          * Object[][] tableInformation
+ *          * RowFilter myFilter
+ *          * String filter
+ *      * Methods:
+ *          * InitializeTableInformation(Object[][] tableInfo)
+ * <p>
+ * - Renamed a few methods so their purpose is clearer
+ * - Utilized constants in place of some hardcoded values for easier readability
+ * - Cleaned up organization and imports
+ */
+
+/**
+ * CourseView implements the view component of the course program. It handles
+ * all aspects of GUI creation and management. It relies on the controller for
+ * direction in how data is handled. It allows the controller to map buttons and
+ * request data from all input fields
+ * <p>
+ *
+ * @author Michael C
+ * @date
+ */
 package Chapter4;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.ComponentOrientation;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
@@ -26,6 +50,7 @@ public class CourseView
 
     private JPanel masterPanel;
     private JPanel masterPanel_topRow;
+    private JButton exit;
 
     //<editor-fold desc="Input Area">
     //Input area panel
@@ -37,7 +62,7 @@ public class CourseView
     private JTextField input_courseName;
     private JTextField input_courseNumber;
     private JTextField input_courseCredits;
-    private JComboBox input_courseBox;
+    private JComboBox input_courseDepartment;
     private JButton input_submitButton;
     //</editor-fold>
 
@@ -59,27 +84,30 @@ public class CourseView
 
     //Table display controls
     private JTable courseViewTable;
-    private Object[][] tableInformation;
     private DefaultTableModel myModel;
-    private final String[] columnNames = {"Abbreviation","Course Deptartment", "Course Name", "Course Number", "Credit Hours"};
+    private final String[] columnNames = {"Abbreviation", "Course Deptartment", "Course Name", "Course Number", "Credit Hours"};
     private TableRowSorter mySorter;
-    RowFilter<Object, Object> myFilter;
-    private String filter = "";
-    private JButton exit;
+    //</editor-fold>
+
+    //<editor-fold desc="Constants">
+    public static final String NO_FILTER = "";
+    private static final int DEPARTMENT_COLUMN = 1;
+    private static final int UNBOUND_FIELD = -1;
+    private static final String FRAME_TITLE = "Chp 4 Solution";
     //</editor-fold>
 
     public CourseView() {
         this(null);
     }
 
-    public CourseView(Object[][] tableInfo) {
+    public CourseView(Object[][] modelInfo) {
         //Initialize components
 
         //<editor-fold desc="Input panel creation">		
         //Initialize inputPanel controls
-        input_courseBox = initializeJComboBox(CourseModel.COURSE_LISTING[0], "Assigns course to selected department");
+        input_courseDepartment = initializeJComboBox(CourseModel.COURSE_LISTING[CourseModel.COURSE_NAMES], "Assigns course to selected department");
         input_courseCredits = initializeJTextField(5, "Defines the number of credit hours course is worth");
-        input_courseName = initializeJTextField(-1, "Name of the new course");
+        input_courseName = initializeJTextField(UNBOUND_FIELD, "Name of the new course");
         input_courseNumber = initializeJTextField(5, "The course's curiculum number, i.e. CS###");
         input_submitButton = initializeJButton("Submit", "Add course to curriculum");
 
@@ -91,15 +119,15 @@ public class CourseView
         inputPanel = new JPanel(new GridLayout(1, 2, 5, 0));
         input_labelPanel.setAlignmentX(RIGHT_ALIGNMENT);
 
-        //Input area labels
-        input_controlPanel.add(input_courseBox);
+        //Input area user input components
+        input_controlPanel.add(input_courseDepartment);
         input_controlPanel.add(input_courseName);
         input_controlPanel.add(input_courseNumber);
         input_controlPanel.add(input_courseCredits);
         input_controlPanel.add(input_submitButton);
 
+        //Input area labels
         String[] labels = {"Owning Department", "Course Name", "Course Number", "Credit Hours"};
-
         input_labelPanel.add(Box.createRigidArea(new Dimension(0, 5)));
         for (int i = 0; i < labels.length; i++) {
             input_labelPanel.add(createLabel(labels[i]));
@@ -113,14 +141,13 @@ public class CourseView
 
         //<editor-fold desc="Display control panel creation">		
         //Initialize coursePanel controls
-        display_courseSelector = initializeJComboBox(CourseModel.COURSE_LISTING[0], "Only view courses in selected department");
+        display_courseSelector = initializeJComboBox(CourseModel.COURSE_LISTING[CourseModel.COURSE_NAMES], "Only view courses in selected department");
         display_allButton = initializeJButton("View All", "View all courses");
         display_viewButton = initializeJButton("Search", "View all courses based off department selection");
 
         //Define each panel's layout
         course_controlPanel = new JPanel(new FlowLayout());
         course_deptSelectPanel = new JPanel(new FlowLayout());
-
         coursePanel = new JPanel(new GridLayout(2, 1, 5, 0));
 
         //Add components to the panels
@@ -135,14 +162,16 @@ public class CourseView
         //</editor-fold>
 
         //<editor-fold desc="Table panel creation">
-        //Initialize tablePanel controls
-        myModel = new DefaultTableModel(tableInformation, columnNames) {
+//Initialize JTable components
+        myModel = new DefaultTableModel(modelInfo, columnNames) {
 
+            //Force table uneditable
             @Override
             public boolean isCellEditable(int rowIndex, int vColIndex) {
                 return false;
             }
 
+            //Define the table's column model
             Class[] types = new Class[]{
                 String.class, String.class, String.class, int.class, int.class
             };
@@ -161,20 +190,15 @@ public class CourseView
         courseViewTable = new JTable(myModel);
         courseViewTable.setAutoCreateRowSorter(true);
 
+        //Creates a TableRowSorter to allow comboBox filtering
         mySorter = new TableRowSorter(myModel);
-
         courseViewTable.setRowSorter(mySorter);
-        setFilter(filter);
-
-        initializeTableInformation(tableInfo);
+        setNewFilter(NO_FILTER);
 
         //Add components to panels
         tablePanel = new JScrollPane();
         tablePanel.setViewportView(courseViewTable);
-
         //</editor-fold>
-//
-        exit = initializeJButton("Exit", "Close the application after confirmation");
 //
         //<editor-fold desc="Master panel Creation">
         masterPanel = new JPanel();
@@ -184,28 +208,35 @@ public class CourseView
         masterPanel_topRow.add(inputPanel);
         masterPanel_topRow.add(coursePanel);
 
+        //Exit button panel creation
+        JPanel temp = new JPanel(new BorderLayout());
+        exit = initializeJButton("Exit", "Close the application after confirmation");
+        temp.add(exit, BorderLayout.LINE_END);
+
         masterPanel.add(masterPanel_topRow);
         masterPanel.add(tablePanel);
-
-        JPanel temp = new JPanel(new BorderLayout());
-        temp.add(exit, BorderLayout.LINE_END);
         masterPanel.add(temp);
         //</editor-fold>
 
         //<editor-fold desc="Frame controls">
-        this.setTitle("Course Chp 4 Solution");
+        this.setTitle(FRAME_TITLE);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.add(masterPanel);
         this.pack();
         this.setResizable(false);
         this.setVisible(true);
         //</editor-fold>
-
-        Dimension d = exit.getSize();
-        exit.setMaximumSize(d);
-        exit.setPreferredSize(d);
     }
 
+    /**
+     * Creates a JTextField of the passed size, gives it a tooltip and returns
+     * it for use
+     *
+     * @param size    size of JTextField
+     * @param toolTip tooltip of the field
+     *
+     * @return initialized JTextField
+     */
     private JTextField initializeJTextField(int size, String toolTip) {
         JTextField temp;
 
@@ -219,6 +250,14 @@ public class CourseView
         return temp;
     }
 
+    /**
+     * Creates a JComboBox from passed in parameters
+     *
+     * @param valueArray the String array of comboBox values
+     * @param toolTip    tooltip of the field
+     *
+     * @return initialized JComboBox
+     */
     private JComboBox initializeJComboBox(String[] valueArray, String toolTip) {
         JComboBox temp = new JComboBox(valueArray);
         temp.setToolTipText(toolTip);
@@ -226,23 +265,30 @@ public class CourseView
         return temp;
     }
 
+    /**
+     * Creates a JButton from passed parameters
+     *
+     * @param buttonText button's display text
+     * @param toolTip    tooltip of button
+     *
+     * @return initialized JButton
+     */
     private JButton initializeJButton(String buttonText, String toolTip) {
-        JButton temp;
-
-        if (buttonText == null) {
-            temp = new JButton();
-        } else {
-            temp = new JButton(buttonText);
-        }
-
+        JButton temp = new JButton(buttonText);
         temp.setToolTipText(toolTip);
+
         return temp;
     }
 
+    /**
+     * Creats a JLabel of the passed String
+     * <p>
+     */
     private JLabel createLabel(String label) {
         return (new JLabel(label + ":"));
     }
 
+    //<editor-fold desc="Getters for all JTextFields and JComboBoxes">
     public String getInput_courseName() {
         return input_courseName.getText();
     }
@@ -256,20 +302,30 @@ public class CourseView
     }
 
     public String getInput_courseBox() {
-        return (String) input_courseBox.getSelectedItem();
+        return (String) input_courseDepartment.getSelectedItem();
     }
 
     public int getDisplay_courseSelector() {
         return display_courseSelector.getSelectedIndex();
     }
+    //</editor-fold>
 
-    public void clearSubmit() {
+    /**
+     * Clears all user input values in the submit Section
+     */
+    public void clearSubmitArea() {
         input_courseName.setText("");
-        input_courseBox.setSelectedIndex(0);
+        input_courseDepartment.setSelectedIndex(0);
         input_courseCredits.setText("");
         input_courseNumber.setText("");
     }
 
+    /**
+     * Hook for the controller to attach itself as an ActionListener to all of
+     * the view's buttons
+     *
+     * @param al actionListener to attach
+     */
     public void registerListener(ActionListener al) {
         display_viewButton.addActionListener(al);
         display_allButton.addActionListener(al);
@@ -285,21 +341,7 @@ public class CourseView
         myModel.removeRow(row);
     }
 
-    public void setFilter(String filter) {
-        this.filter = filter;
-
-        myFilter = RowFilter.regexFilter(this.filter, 1);
-
-        mySorter.setRowFilter(myFilter);
-    }
-
-    public void initializeTableInformation(Object[][] tableInfo) {
-        tableInformation = tableInfo;
-
-        if (tableInformation != null) {
-            for (int i = 0; i < tableInfo.length; i++) {
-                myModel.addRow(tableInformation[i]);
-            }
-        }
+    public void setNewFilter(String filter) {
+        mySorter.setRowFilter(RowFilter.regexFilter(filter, DEPARTMENT_COLUMN));
     }
 }
