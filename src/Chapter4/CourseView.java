@@ -1,17 +1,6 @@
 /**
  * CHANGELOG
- * - Documented code
- * - Removed
- *      * Private variables:
- *          * Object[][] tableInformation
- *          * RowFilter myFilter
- *          * String filter
- *      * Methods:
- *          * InitializeTableInformation(Object[][] tableInfo)
- * <p>
- * - Renamed a few methods so their purpose is clearer
- * - Utilized constants in place of some hardcoded values for easier readability
- * - Cleaned up organization and imports
+ * - Changed buttons to have a name that is referenced by the controller
  */
 
 /**
@@ -109,7 +98,7 @@ public class CourseView
         input_courseCredits = initializeJTextField(5, "Defines the number of credit hours course is worth");
         input_courseName = initializeJTextField(UNBOUND_FIELD, "Name of the new course");
         input_courseNumber = initializeJTextField(5, "The course's curiculum number, i.e. CS###");
-        input_submitButton = initializeJButton("Submit", "Add course to curriculum");
+        input_submitButton = initializeJButton("Submit","Submit", "Add course to curriculum");
 
         //Define each panel's layout
         input_labelPanel = new JPanel();
@@ -142,8 +131,8 @@ public class CourseView
         //<editor-fold desc="Display control panel creation">		
         //Initialize coursePanel controls
         display_courseSelector = initializeJComboBox(CourseModel.COURSE_LISTING[CourseModel.COURSE_NAMES], "Only view courses in selected department");
-        display_allButton = initializeJButton("View All", "View all courses");
-        display_viewButton = initializeJButton("Search", "View all courses based off department selection");
+        display_allButton = initializeJButton("All","View All", "View all courses");
+        display_viewButton = initializeJButton("Search","Search", "View all courses based off department selection");
 
         //Define each panel's layout
         course_controlPanel = new JPanel(new FlowLayout());
@@ -210,7 +199,7 @@ public class CourseView
 
         //Exit button panel creation
         JPanel temp = new JPanel(new BorderLayout());
-        exit = initializeJButton("Exit", "Close the application after confirmation");
+        exit = initializeJButton("Exit","Exit", "Close the application after confirmation");
         temp.add(exit, BorderLayout.LINE_END);
 
         masterPanel.add(masterPanel_topRow);
@@ -273,9 +262,10 @@ public class CourseView
      *
      * @return initialized JButton
      */
-    private JButton initializeJButton(String buttonText, String toolTip) {
+    private JButton initializeJButton(String buttonName, String buttonText, String toolTip) {
         JButton temp = new JButton(buttonText);
         temp.setToolTipText(toolTip);
+        temp.setName(buttonName);
 
         return temp;
     }

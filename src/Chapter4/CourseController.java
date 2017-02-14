@@ -1,8 +1,6 @@
 /**
  * CHANGELOG:
- * - Documented Code
- * - Renamed a few methods for better readability
- * - Utilized constants in place of some hardcoded values for easier readability
+ * - Change button's text check to button's name check
  */
 /**
  * CourseController implements the controller component of the course program.
@@ -13,7 +11,6 @@
  * <p>
  * TODO List
  * - Input checking on user input
- * - Change button's text check to button's name check
  * - Allow editing of courses already in table
  * - Allow deletion of courses from table (after prompt)
  * - Restricting textfield to certain formats and values (i.e. ints only)
@@ -80,7 +77,7 @@ public class CourseController
 //        try {
 
         JButton temp = (JButton) buttonPressed.getSource();
-        String buttonName = temp.getText();
+        String buttonName = temp.getName();
 
         //Handles each button press appropriately
         switch (buttonName) {
@@ -101,7 +98,7 @@ public class CourseController
                 view.insertIntoTable(model.findCourse(courseDept, courseName, courseNum, courseCred));
                 break;
 
-            case "View All":
+            case "All":
                 view.setNewFilter(CourseView.NO_FILTER);
                 break;
 
