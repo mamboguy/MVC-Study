@@ -14,8 +14,6 @@
  * - Restricting textfield to certain formats and values (i.e. ints only)
  * - Restrict resizing of Exit button during window resize
  * - Allow adding new courses to curriculum
- * - Change the default sizes of columns to be more appropriate
- * - Restrict each column's minimum size
  * - Change filter to allow multiple departments
  * - Make JOptionPane popup on screen in focus rather than primary monitor
  * -------------------------------------

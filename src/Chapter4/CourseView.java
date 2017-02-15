@@ -1,6 +1,7 @@
 /** CHANGELOG.
  *
- * Added null and bounds checking to all JTextFields in course submission
+ * - Changed the default sizes of columns to be more appropriate
+ * - Restricted each column's minimum size
  */
 /**
  * CourseView implements the view component of the course program. It handles
@@ -31,6 +32,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.RowFilter;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
 
 public class CourseView
@@ -201,8 +203,16 @@ public class CourseView
         courseViewTable.setRowSorter(mySorter);
         setNewFilter(NO_FILTER);
 
+        TableColumn column = null;
+        setPreferedAndMinWidth(0, 90);
+        setPreferedAndMinWidth(1, 150);
+        setPreferedAndMinWidth(2, 200);
+        setPreferedAndMinWidth(3, 110);
+        setPreferedAndMinWidth(4, 100);
+
         //Add components to panels
         tablePanel = new JScrollPane();
+        courseViewTable.setPreferredScrollableViewportSize(courseViewTable.getPreferredSize());
         tablePanel.setViewportView(courseViewTable);
         //</editor-fold>
 //
@@ -229,7 +239,6 @@ public class CourseView
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.add(masterPanel);
         this.pack();
-        this.setResizable(false);
         this.setVisible(true);
         //</editor-fold>
     }
@@ -409,5 +418,10 @@ public class CourseView
 
     public int getFocusedRow() {
         return courseViewTable.getSelectedRow();
+    }
+
+    private void setPreferedAndMinWidth(int column, int size) {
+        (courseViewTable.getColumnModel().getColumn(column)).setPreferredWidth(size);
+        (courseViewTable.getColumnModel().getColumn(column)).setMinWidth(size);
     }
 }
