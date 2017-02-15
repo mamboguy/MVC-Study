@@ -1,10 +1,6 @@
-/**
- * CHANGELOG
+/** CHANGELOG.
  *
- * Added getFocusedRow and getDataAtRow(row)
- *  - getDataAtRow returns an Object[] at the passed int's corresponding row
- * 
- * Changed panel layouts to allow addition of Delete button
+ * Added null and bounds checking to all JTextFields in course submission
  */
 /**
  * CourseView implements the view component of the course program. It handles
@@ -89,6 +85,10 @@ public class CourseView
     private static final int DEPARTMENT_COLUMN = 1;
     private static final int UNBOUND_FIELD = -1;
     private static final String FRAME_TITLE = "Chp 4 Solution";
+    private static final int MIN_COURSE_NUM = 1;
+    private static final int MAX_COURSE_NUM = 9999;
+    private static final int MIN_CREDITS_NUM = 0;
+    private static final int MAX_CREDITS_NUM = 30;
     //</editor-fold>
 
     public CourseView() {
@@ -98,9 +98,9 @@ public class CourseView
     public CourseView(Object[][] modelInfo) {
         //Initialize components
 
-        //<editor-fold desc="Input panel creation">		
+        //<editor-fold desc="Input panel creation">
         //Initialize inputPanel controls
-        input_courseDepartment = initializeJComboBox(CourseModel.COURSE_LISTING[CourseModel.COURSE_NAMES], "Assigns course to selected department");
+        input_courseDepartment = initializeJComboBox(CourseModel.COURSE_LISTING[CourseModel.COURSE_NAMES_ARRAY], "Assigns course to selected department");
         input_courseCredits = initializeJTextField(5, "Defines the number of credit hours course is worth");
         input_courseName = initializeJTextField(UNBOUND_FIELD, "Name of the new course");
         input_courseNumber = initializeJTextField(5, "The course's curiculum number, i.e. CS###");
@@ -147,7 +147,7 @@ public class CourseView
 
         //<editor-fold desc="Display control panel creation">		
         //Initialize coursePanel controls
-        display_courseSelector = initializeJComboBox(CourseModel.COURSE_LISTING[CourseModel.COURSE_NAMES], "Only view courses in selected department");
+        display_courseSelector = initializeJComboBox(CourseModel.COURSE_LISTING[CourseModel.COURSE_NAMES_ARRAY], "Only view courses in selected department");
         display_allButton = initializeJButton("All", "View All", "View all courses");
         display_viewButton = initializeJButton("Search", "Search", "View all courses based off department selection");
 
@@ -295,20 +295,57 @@ public class CourseView
         return (new JLabel(label + ":"));
     }
 
+    public Object[] verifyAndReturnInputs() {
+        Object[] temp = new Object[7];
+
+        boolean invalidInputs = false;
+        String errorMessage = "";
+
+        if (getInput_courseName().equals("")) {
+            invalidInputs = true;
+            errorMessage += "\nInvalid Course Name! - Course Name should not be blank";
+        }
+
+        if (!(getInput_courseNumber() > MIN_COURSE_NUM && getInput_courseNumber() < MAX_COURSE_NUM)) {
+            invalidInputs = true;
+            errorMessage += "\nInvalid Course Number! - Number should be between " + MIN_COURSE_NUM + "-" + MAX_COURSE_NUM;
+        }
+
+        if (!(getInput_courseCredits() >= MIN_CREDITS_NUM && getInput_courseCredits() < MAX_CREDITS_NUM)) {
+            invalidInputs = true;
+            errorMessage += "\nInvalid Credit Hours! - Number should be between " + MIN_CREDITS_NUM + "-" + MAX_CREDITS_NUM;
+        }
+
+        temp[0] = invalidInputs;
+        temp[CourseModel.DEPARTMENT] = getInput_courseDepartment();
+        temp[CourseModel.COURSE_NAME] = getInput_courseName();
+        temp[CourseModel.COURSE_NUMBER] = getInput_courseNumber();
+        temp[CourseModel.CREDIT_HOURS] = getInput_courseCredits();
+        temp[5] = errorMessage;
+
+        return temp;
+    }
+
     //<editor-fold desc="Getters for all JTextFields and JComboBoxes">
     public String getInput_courseName() {
         return input_courseName.getText();
     }
 
     public int getInput_courseNumber() {
+        if (input_courseNumber.getText().equals("")) {
+            return MIN_COURSE_NUM - 1;
+        }
         return Integer.parseInt(input_courseNumber.getText());
     }
 
-    public int getInput_courseCredits() {
-        return Integer.parseInt(input_courseCredits.getText());
+    public double getInput_courseCredits() {
+        if (input_courseCredits.getText().equals("")) {
+            return MIN_CREDITS_NUM - 1;
+        }
+        return Double.parseDouble(input_courseCredits.getText());
     }
 
-    public String getInput_courseBox() {
+    public String getInput_courseDepartment() {
         return (String) input_courseDepartment.getSelectedItem();
     }
 

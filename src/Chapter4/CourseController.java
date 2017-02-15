@@ -1,8 +1,6 @@
 /** CHANGELOG.
  *
- * Added delete controller case
- *  - Attempts to delete the selected course from the table and model.  Informs
- *    the user of an exception if unable to delete from model or success if it did
+ * Added input verification handling
  */
 /**
  * CourseController implements the controller component of the course program.
@@ -12,7 +10,6 @@
  * -------------------------------------
  * <p>
  * TODO List
- * - Input checking on user input
  * - Allow editing of courses already in table
  * - Restricting textfield to certain formats and values (i.e. ints only)
  * - Restrict resizing of Exit button during window resize
@@ -90,14 +87,21 @@ public class CourseController
              */
             case "Submit":
 
-                String courseDept = view.getInput_courseBox();
-                String courseName = view.getInput_courseName();
-                int courseNum = view.getInput_courseNumber();
-                int courseCred = view.getInput_courseCredits();
+                Object[] courseInput = view.verifyAndReturnInputs();
 
-                model.addNewCourse(courseDept, courseName, courseNum, courseCred);
-                view.clearSubmitArea();
-                view.insertIntoTable(model.findCourse(courseDept, courseName, courseNum, courseCred));
+                if ((boolean) courseInput[0]) {
+                    String message = "Detected invalid inputs in fields:" + courseInput[5];
+
+                    JOptionPane.showMessageDialog(null, message, "Invalid Input Detected", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    if (model.addNewCourse(courseInput)) {
+                        view.clearSubmitArea();
+                        view.insertIntoTable(model.findCourse(courseInput));
+                        JOptionPane.showMessageDialog(null, "Course added", "Ok", JOptionPane.INFORMATION_MESSAGE);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Could not input course into model", "Ok", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
                 break;
 
             case "All":
@@ -105,7 +109,7 @@ public class CourseController
                 break;
 
             case "Search":
-                view.setNewFilter(CourseModel.COURSE_LISTING[CourseModel.COURSE_NAMES][view.getDisplay_courseSelector()]);
+                view.setNewFilter(CourseModel.COURSE_LISTING[CourseModel.COURSE_NAMES_ARRAY][view.getDisplay_courseSelector()]);
                 break;
 
             /*
@@ -132,8 +136,8 @@ public class CourseController
                 options = new String[]{"Delete", "Cancel"};
 
                 if (JOptionPane.showOptionDialog(null,
-                                                 "Are you sure you want to exit?",
-                                                 "Exit confirmation",
+                                                 "Are you sure you want to delete the selected course?",
+                                                 "Delete confirmation",
                                                  JOptionPane.YES_NO_OPTION,
                                                  JOptionPane.WARNING_MESSAGE,
                                                  null,
@@ -173,14 +177,14 @@ public class CourseController
     public static void main(String[] args) {
 
         CourseModel tempModel = new CourseModel();
-        tempModel.addNewCourse("Computer Science", "Intro to Java", 101, 3);
-        tempModel.addNewCourse("Physics", "Intro to Physics", 102, 3);
-        tempModel.addNewCourse("Chemistry", "Covalent Bonds", 311, 3);
-        tempModel.addNewCourse("Mathematics", "Geometry", 251, 3);
-        tempModel.addNewCourse("Botany", "Herbology", 301, 3);
-        tempModel.addNewCourse("Zoology", "Mammals", 111, 3);
-        tempModel.addNewCourse("Computer Science", "Intermediate Java, pt 1", 201, 3);
-        tempModel.addNewCourse("Computer Science", "Intermediate Java, pt 2", 202, 3);
+        tempModel.addNewCourse(new Object[]{"", "Computer Science", "Intro to Java", 101, 3.0});
+        tempModel.addNewCourse(new Object[]{"", "Physics", "Intro to Physics", 102, 3.0});
+        tempModel.addNewCourse(new Object[]{"", "Chemistry", "Covalent Bonds", 311, 3.5});
+        tempModel.addNewCourse(new Object[]{"", "Mathematics", "Geometry", 251, 3.0});
+        tempModel.addNewCourse(new Object[]{"", "Botany", "Herbology", 301, 2.0});
+        tempModel.addNewCourse(new Object[]{"", "Zoology", "Mammals", 111, 3.5});
+        tempModel.addNewCourse(new Object[]{"", "Computer Science", "Intermediate Java, pt 1", 201, 3.0});
+        tempModel.addNewCourse(new Object[]{"", "Computer Science", "Intermediate Java, pt 2", 202, 3.0});
 
         CourseController controller = new CourseController(tempModel);
     }

@@ -1,13 +1,7 @@
 /** CHANGELOG.
- * - Added deleteCourse and convertObjectToCourse
- *  - deleteCourse(Object[]) tries to removes the passed Object[] from the
- *    arraylist after converting it to a Course
  *
- *  - convertObjectToCourse(Object[]) returns a course from an Object[] if possible
- *
- * Added constant values
- * Modified getTableOutputArray to use constant values
- * Modified equals to accept an Object and override properly
+ * Changed a course's credit hours to double
+ * Modified addCourse and findCourse to accept Object[] as a parameter
  */
 /**
  * CourseModel implements the model component of the course program. It handles
@@ -31,14 +25,14 @@ public class CourseModel {
     public static final String[][] COURSE_LISTING = {
         {"Computer Science", "Physics", "Chemistry", "Mathematics", "Botany", "Zoology"},
         {"CS", "PHY", "CHEM", "MATH", "BOT", "ZOO"}};
-    public static final int COURSE_NAMES = 0;
-    public static final int COURSE_CODES = 1;
+    public static final int COURSE_NAMES_ARRAY = 0;
+    public static final int COURSE_CODES_ARRAY = 1;
 
-    private static final int ABBREVIATION = 0;
-    private static final int DEPARTMENT = 1;
-    private static final int COURSE_NAME = 2;
-    private static final int COURSE_NUMBER = 3;
-    private static final int CREDIT_HOURS = 4;
+    public static final int ABBREVIATION = 0;
+    public static final int DEPARTMENT = 1;
+    public static final int COURSE_NAME = 2;
+    public static final int COURSE_NUMBER = 3;
+    public static final int CREDIT_HOURS = 4;
     //</editor-fold>
 
     public CourseModel() {
@@ -49,17 +43,17 @@ public class CourseModel {
 
         private String courseName;
         private int courseNumber;
-        private int numCredits;
+        private double numCredits;
         private String courseDept;
         private String courseShort;
 
-        public Course(String department, String name, int number, int credits) {
+        public Course(String department, String name, int number, double credits) {
             courseDept = department;
             courseName = name;
             courseNumber = number;
             numCredits = credits;
 
-            courseShort = COURSE_LISTING[COURSE_CODES][getCourseIndex(department)];
+            courseShort = COURSE_LISTING[COURSE_CODES_ARRAY][getCourseIndex(department)];
             courseShort += courseNumber;
         }
 
@@ -72,7 +66,7 @@ public class CourseModel {
             return courseNumber;
         }
 
-        public int getNumCredits() {
+        public double getNumCredits() {
             return numCredits;
         }
 
@@ -93,17 +87,17 @@ public class CourseModel {
         //Updates the courseShort variable as well
         public void setCourseNumber(int courseNumber) {
             this.courseNumber = courseNumber;
-            this.courseShort = COURSE_LISTING[COURSE_CODES][getCourseIndex(courseDept)] + courseNumber;
+            this.courseShort = COURSE_LISTING[COURSE_CODES_ARRAY][getCourseIndex(courseDept)] + courseNumber;
         }
 
-        public void setNumCredits(int numCredits) {
+        public void setNumCredits(double numCredits) {
             this.numCredits = numCredits;
         }
 
         //Updates the courseShort variable as well
         public void setCourseDept(String courseDept) {
             this.courseDept = courseDept;
-            this.courseShort = COURSE_LISTING[COURSE_CODES][getCourseIndex(courseDept)] + courseNumber;
+            this.courseShort = COURSE_LISTING[COURSE_CODES_ARRAY][getCourseIndex(courseDept)] + courseNumber;
         }
         //</editor-fold>
 
@@ -115,8 +109,8 @@ public class CourseModel {
          * @return index of department in COURSE_LISTING
          */
         private int getCourseIndex(String department) {
-            for (int i = 0; i < COURSE_LISTING[COURSE_NAMES].length; i++) {
-                if (department.equals(COURSE_LISTING[COURSE_NAMES][i])) {
+            for (int i = 0; i < COURSE_LISTING[COURSE_NAMES_ARRAY].length; i++) {
+                if (department.equals(COURSE_LISTING[COURSE_NAMES_ARRAY][i])) {
                     return i;
                 }
             }
@@ -157,13 +151,12 @@ public class CourseModel {
             temp = new Course((String) course[DEPARTMENT],
                               (String) course[COURSE_NAME],
                               (int) course[COURSE_NUMBER],
-                              (int) course[CREDIT_HOURS]);
+                              (double) course[CREDIT_HOURS]);
 
         } catch (Exception e) {
             return null;
         }
 
-        System.out.println("temp.toString = " + temp.toString());
         return temp;
     }
 
@@ -182,29 +175,22 @@ public class CourseModel {
 //        }
 //        return -1;
 //    }
-    public void addNewCourse(String department, String name, int number, int credits) {
-        courseListing.add(new Course(department, name, number, credits));
+    public boolean addNewCourse(Object[] course) {
+        return courseListing.add(convertObjectToCourse(course));
     }
 
     /**
      * Returns a course in the form of an Object[] to allow insertion into
      * view's table. Should only be utilized by the controller
      *
-     * @param department
-     * @param name
-     * @param number
-     * @param credits
-     *
      * @return
      */
-    public Object[] findCourse(String department, String name, int number, int credits) {
+    public Object[] findCourse(Object[] course) {
+        Course tempCourse = convertObjectToCourse(course);
         Object[] temp;
 
         for (Course courseList : courseListing) {
-            if (courseList.getCourseDept().equals(department)
-                && courseList.getCourseName().equals(name)
-                && courseList.getCourseNumber() == number
-                && courseList.getNumCredits() == credits) {
+            if (courseList.equals(tempCourse)) {
 
                 temp = new Object[]{
                     courseList.getShortHand(),
