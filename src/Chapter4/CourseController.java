@@ -1,6 +1,8 @@
-/**
- * CHANGELOG:
- * - Change button's text check to button's name check
+/** CHANGELOG.
+ *
+ * Added delete controller case
+ *  - Attempts to delete the selected course from the table and model.  Informs
+ *    the user of an exception if unable to delete from model or success if it did
  */
 /**
  * CourseController implements the controller component of the course program.
@@ -12,7 +14,6 @@
  * TODO List
  * - Input checking on user input
  * - Allow editing of courses already in table
- * - Allow deletion of courses from table (after prompt)
  * - Restricting textfield to certain formats and values (i.e. ints only)
  * - Restrict resizing of Exit button during window resize
  * - Allow adding new courses to curriculum
@@ -32,7 +33,7 @@
  * - Code folding, Ctrl+Shift+I for import management, Alt+Ins for auto-creating
  * getters/setters
  * - Template manipulation for personal ease of use
-
+ *
  * @author Michael C
  */
 package Chapter4;
@@ -76,6 +77,7 @@ public class CourseController
     public void actionPerformed(ActionEvent buttonPressed) {
 //        try {
 
+        String options[];
         JButton temp = (JButton) buttonPressed.getSource();
         String buttonName = temp.getName();
 
@@ -110,7 +112,7 @@ public class CourseController
              * Generates a confirmation box to ensure the user wishes to exit
              */
             case "Exit":
-                String options[] = {"Exit", "Cancel"};
+                options = new String[]{"Exit", "Cancel"};
 
                 if (JOptionPane.showOptionDialog(null,
                                                  "Are you sure you want to exit?",
@@ -125,6 +127,37 @@ public class CourseController
                 }
 
                 break;
+
+            case "Delete":
+                options = new String[]{"Delete", "Cancel"};
+
+                if (JOptionPane.showOptionDialog(null,
+                                                 "Are you sure you want to exit?",
+                                                 "Exit confirmation",
+                                                 JOptionPane.YES_NO_OPTION,
+                                                 JOptionPane.WARNING_MESSAGE,
+                                                 null,
+                                                 options,
+                                                 options[1]) == JOptionPane.YES_OPTION) {
+
+                    //Deletes the selected course and returns the deleted course
+                    Object[] course = view.removeFromTable(view.getFocusedRow());
+
+                    //Delete course from model
+                    String message = "Course " + course[0] + " successfully deleted";
+                    int messageType = JOptionPane.INFORMATION_MESSAGE;
+                    if (!model.deleteCourse(course)) {
+                        message = "Unknown Exception!  Course not deleted";
+                        messageType = JOptionPane.ERROR_MESSAGE;
+
+                    };
+
+                    JOptionPane.showMessageDialog(null, message, "Ok", messageType);
+
+                }
+
+                break;
+
         }
     }
 //

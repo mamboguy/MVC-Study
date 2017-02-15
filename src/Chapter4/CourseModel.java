@@ -1,14 +1,19 @@
 /** CHANGELOG.
- * CHANGELOG:
- * - Added more constants and replaced some values with new constants
- * - Documented code
- * - Reorganized a few methods and added new fold regions
+ * - Added deleteCourse and convertObjectToCourse
+ *  - deleteCourse(Object[]) tries to removes the passed Object[] from the
+ *    arraylist after converting it to a Course
+ *
+ *  - convertObjectToCourse(Object[]) returns a course from an Object[] if possible
+ *
+ * Added constant values
+ * Modified getTableOutputArray to use constant values
+ * Modified equals to accept an Object and override properly
  */
 /**
  * CourseModel implements the model component of the course program. It handles
  * all functions with regards to accessing and storing all course data used by
  * the program.
- * 
+ *
  * Used resources:
  * - StackOverflow
  * - http://www3.ntu.edu.sg/home/ehchua/programming/java/J4a_GUI.html
@@ -28,6 +33,12 @@ public class CourseModel {
         {"CS", "PHY", "CHEM", "MATH", "BOT", "ZOO"}};
     public static final int COURSE_NAMES = 0;
     public static final int COURSE_CODES = 1;
+
+    private static final int ABBREVIATION = 0;
+    private static final int DEPARTMENT = 1;
+    private static final int COURSE_NAME = 2;
+    private static final int COURSE_NUMBER = 3;
+    private static final int CREDIT_HOURS = 4;
     //</editor-fold>
 
     public CourseModel() {
@@ -119,11 +130,19 @@ public class CourseModel {
          *
          * @return <code>true</code> if equal, <code>false </code> if not
          */
-        public boolean equals(Course b) {
-            return (courseNumber == b.getCourseNumber()
-                    && courseName.equals(b.getCourseName())
-                    && courseDept.equals(b.getCourseDept())
-                    && numCredits == b.getNumCredits());
+        @Override
+        public boolean equals(Object b) {
+            Course temp;
+            try {
+                temp = (Course) b;
+            } catch (Exception e) {
+                return false;
+            }
+
+            return (courseNumber == temp.getCourseNumber()
+                    && courseName.equals(temp.getCourseName())
+                    && courseDept.equals(temp.getCourseDept())
+                    && numCredits == temp.getNumCredits());
         }
 
         @Override
@@ -132,6 +151,37 @@ public class CourseModel {
         }
     }
 
+    private Course convertObjectToCourse(Object[] course) {
+        Course temp;
+        try {
+            temp = new Course((String) course[DEPARTMENT],
+                              (String) course[COURSE_NAME],
+                              (int) course[COURSE_NUMBER],
+                              (int) course[CREDIT_HOURS]);
+
+        } catch (Exception e) {
+            return null;
+        }
+
+        System.out.println("temp.toString = " + temp.toString());
+        return temp;
+    }
+
+    public boolean deleteCourse(Object[] course) {
+        return courseListing.remove(convertObjectToCourse(course));
+//        courseListing.remove(getCourseIndex(course));
+    }
+
+//    private int getCourseIndex(Object[] course) {
+//        Course temp = new Course((String) course[1], (String) course[2], (int) course[3], (int) course[4]);
+//
+//        for (int i = 0; i < courseListing.size(); i++) {
+//            if (courseListing.get(i).equals(temp)) {
+//                return i;
+//            }
+//        }
+//        return -1;
+//    }
     public void addNewCourse(String department, String name, int number, int credits) {
         courseListing.add(new Course(department, name, number, credits));
     }
@@ -182,11 +232,12 @@ public class CourseModel {
         int i = 0;
 
         for (Course courseListing1 : courseListing) {
-            temp[i][0] = courseListing1.getShortHand();
-            temp[i][1] = courseListing1.getCourseDept();
-            temp[i][2] = courseListing1.getCourseName();
-            temp[i][3] = courseListing1.getCourseNumber();
-            temp[i][4] = courseListing1.getNumCredits();
+
+            temp[i][ABBREVIATION] = courseListing1.getShortHand();
+            temp[i][DEPARTMENT] = courseListing1.getCourseDept();
+            temp[i][COURSE_NAME] = courseListing1.getCourseName();
+            temp[i][COURSE_NUMBER] = courseListing1.getCourseNumber();
+            temp[i][CREDIT_HOURS] = courseListing1.getNumCredits();
 
             i++;
         }

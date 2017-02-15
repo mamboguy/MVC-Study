@@ -1,8 +1,11 @@
 /**
  * CHANGELOG
- * - Changed buttons to have a name that is referenced by the controller
+ *
+ * Added getFocusedRow and getDataAtRow(row)
+ *  - getDataAtRow returns an Object[] at the passed int's corresponding row
+ * 
+ * Changed panel layouts to allow addition of Delete button
  */
-
 /**
  * CourseView implements the view component of the course program. It handles
  * all aspects of GUI creation and management. It relies on the controller for
@@ -46,6 +49,8 @@ public class CourseView
     private JPanel inputPanel;
     private JPanel input_labelPanel;
     private JPanel input_controlPanel;
+    private JPanel input_fieldPanel;
+    private JPanel input_buttonPanel;
 
     //Input area controls
     private JTextField input_courseName;
@@ -53,6 +58,7 @@ public class CourseView
     private JTextField input_courseCredits;
     private JComboBox input_courseDepartment;
     private JButton input_submitButton;
+    private JButton input_deleteButton;
     //</editor-fold>
 
     //<editor-fold desc="Course Search Area">
@@ -98,22 +104,26 @@ public class CourseView
         input_courseCredits = initializeJTextField(5, "Defines the number of credit hours course is worth");
         input_courseName = initializeJTextField(UNBOUND_FIELD, "Name of the new course");
         input_courseNumber = initializeJTextField(5, "The course's curiculum number, i.e. CS###");
-        input_submitButton = initializeJButton("Submit","Submit", "Add course to curriculum");
+        input_submitButton = initializeJButton("Submit", "Submit", "Add course to curriculum");
+        input_deleteButton = initializeJButton("Delete", "Delete", "Deletes the selected course in the table");
 
         //Define each panel's layout
         input_labelPanel = new JPanel();
         input_controlPanel = new JPanel();
+        inputPanel = new JPanel();
         input_labelPanel.setLayout(new BoxLayout(input_labelPanel, BoxLayout.Y_AXIS));
         input_controlPanel.setLayout(new BoxLayout(input_controlPanel, BoxLayout.Y_AXIS));
-        inputPanel = new JPanel(new GridLayout(1, 2, 5, 0));
+        input_fieldPanel = new JPanel(new GridLayout(1, 2, 5, 0));
+        inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
         input_labelPanel.setAlignmentX(RIGHT_ALIGNMENT);
+        input_buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        //Yo dawg, I heard you liked panels
 
         //Input area user input components
         input_controlPanel.add(input_courseDepartment);
         input_controlPanel.add(input_courseName);
         input_controlPanel.add(input_courseNumber);
         input_controlPanel.add(input_courseCredits);
-        input_controlPanel.add(input_submitButton);
 
         //Input area labels
         String[] labels = {"Owning Department", "Course Name", "Course Number", "Credit Hours"};
@@ -123,16 +133,23 @@ public class CourseView
             input_labelPanel.add(Box.createRigidArea(new Dimension(0, 5)));
         }
 
+        //Input button panel
+        input_buttonPanel.add(input_deleteButton);
+        input_buttonPanel.add(input_submitButton);
+
         //Add components to the panels
-        inputPanel.add(input_labelPanel);
-        inputPanel.add(input_controlPanel);
+        input_fieldPanel.add(input_labelPanel);
+        input_fieldPanel.add(input_controlPanel);
+
+        inputPanel.add(input_fieldPanel);
+        inputPanel.add(input_buttonPanel);
         //</editor-fold>
 
         //<editor-fold desc="Display control panel creation">		
         //Initialize coursePanel controls
         display_courseSelector = initializeJComboBox(CourseModel.COURSE_LISTING[CourseModel.COURSE_NAMES], "Only view courses in selected department");
-        display_allButton = initializeJButton("All","View All", "View all courses");
-        display_viewButton = initializeJButton("Search","Search", "View all courses based off department selection");
+        display_allButton = initializeJButton("All", "View All", "View all courses");
+        display_viewButton = initializeJButton("Search", "Search", "View all courses based off department selection");
 
         //Define each panel's layout
         course_controlPanel = new JPanel(new FlowLayout());
@@ -199,7 +216,7 @@ public class CourseView
 
         //Exit button panel creation
         JPanel temp = new JPanel(new BorderLayout());
-        exit = initializeJButton("Exit","Exit", "Close the application after confirmation");
+        exit = initializeJButton("Exit", "Exit", "Close the application after confirmation");
         temp.add(exit, BorderLayout.LINE_END);
 
         masterPanel.add(masterPanel_topRow);
@@ -320,6 +337,7 @@ public class CourseView
         display_viewButton.addActionListener(al);
         display_allButton.addActionListener(al);
         input_submitButton.addActionListener(al);
+        input_deleteButton.addActionListener(al);
         exit.addActionListener(al);
     }
 
@@ -327,11 +345,32 @@ public class CourseView
         myModel.addRow(newCourse);
     }
 
-    public void removeFromTable(int row) {
-        myModel.removeRow(row);
+    public Object[] removeFromTable(int row) {
+
+        Object[] temp = getDataAtRow(row);
+
+        myModel.removeRow(courseViewTable.convertRowIndexToModel(row));
+
+        return temp;
     }
 
     public void setNewFilter(String filter) {
         mySorter.setRowFilter(RowFilter.regexFilter(filter, DEPARTMENT_COLUMN));
+    }
+
+    private Object[] getDataAtRow(int row) {
+        int t = courseViewTable.getSelectedRow();
+
+        Object[] temp = new Object[courseViewTable.getColumnCount()];
+
+        for (int i = 0; i < courseViewTable.getColumnCount(); i++) {
+            temp[i] = courseViewTable.getValueAt(row, courseViewTable.convertColumnIndexToView(i));
+        }
+
+        return temp;
+    }
+
+    public int getFocusedRow() {
+        return courseViewTable.getSelectedRow();
     }
 }
